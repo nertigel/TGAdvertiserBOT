@@ -3,7 +3,9 @@
     "api_hash": "",
     "message_interval": 120,
     "message_text": "Auto Telegram Chat Advertiser by @nertigel",
+    "message_image": "",
     "chats": [
-        "chatname"
+        "chatname1",
+        "chatname2"
     ]
 }

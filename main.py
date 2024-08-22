@@ -15,6 +15,7 @@ def create_default_config():
         "api_hash": "",
         "message_interval": 120,
         "message_text": "Auto Telegram Chat Advertiser by @nertigel",
+        "message_image": "",
         "chats": []
     }
     with open('config.json', 'w', encoding='utf-8') as f:
@@ -23,12 +24,16 @@ def create_default_config():
 async def send_messages(client, config):
     chats = config["chats"]
     message_text = config["message_text"]
+    message_image = config["message_image"]
     
     while True:
         for chat in chats:
             try:
                 print(f"Sending message at {chat}...")
-                await client.send_message(chat, message_text)
+                if message_image and Path(message_image).exists():
+                    await client.send_photo(chat, photo=message_image, caption=message_text)
+                else:
+                    await client.send_message(chat, message_text)
             except FloodWait as e:
                 await asyncio.sleep(e.value)
             except Exception as e:
