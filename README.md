@@ -14,6 +14,6 @@ pip install pyrogram
 ```
 
 
-In the `config.json` file you will find api_id, api_hash, message_text and chats variables, get your [API credentials from Telegram's official website](https://my.telegram.org/auth):
+In the `config.json` file you will find api_id, api_hash, message_text and chats variables, get your [API credentials from Telegram's official website](https://my.telegram.org/auth).
 
 Now you can simply run the bot by running `main.py`
