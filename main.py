@@ -29,6 +29,7 @@ async def send_messages(client, config):
     while True:
         for chat in chats:
             try:
+                await asyncio.sleep(2)
                 print(f"Sending message at {chat}...")
                 if message_image and Path(message_image).exists():
                     await client.send_photo(chat, photo=message_image, caption=message_text)
@@ -39,7 +40,7 @@ async def send_messages(client, config):
             except Exception as e:
                 print(f"Failed to send message to {chat}: {e}")
 
-            await asyncio.sleep(config["message_interval"])
+        await asyncio.sleep(config["message_interval"])
 
 async def main():
     if not Path('config.json').exists():
