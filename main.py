@@ -14,6 +14,7 @@ def create_default_config():
         "api_id": "",
         "api_hash": "",
         "message_interval": 120,
+        "message_limit": 20,
         "message_text": "Auto Telegram Chat Advertiser by @nertigel",
         "message_image": "",
         "chats": []
@@ -21,20 +22,30 @@ def create_default_config():
     with open('config.json', 'w', encoding='utf-8') as f:
         json.dump(default_config, f, ensure_ascii=False, indent=4)
 
+def create_dir_if_not_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
 async def send_messages(client, config):
     chats = config["chats"]
     message_text = config["message_text"]
     message_image = config["message_image"]
+    message_limit = config.get("message_limit", 20)
+    message_count = 0
     
-    while True:
+    while message_count < message_limit:
         for chat in chats:
             try:
                 await asyncio.sleep(2)
-                print(f"Sending message at {chat}...")
+                print(f"Sending message #{message_count} at {chat}...")
                 if message_image and Path(message_image).exists():
                     await client.send_photo(chat, photo=message_image, caption=message_text)
                 else:
                     await client.send_message(chat, message_text)
+
+                message_count += 1
+                if message_count >= message_limit:
+                    break
             except FloodWait as e:
                 await asyncio.sleep(e.value)
             except Exception as e:
@@ -46,14 +57,24 @@ async def main():
     if not Path('config.json').exists():
         create_default_config()
     
+    create_dir_if_not_exists("sessions")
     config = load_json_cfg()
-    session_name = input("Enter the session name: ")
-    
-    async with Client(session_name, workdir="sessions", api_id=config["api_id"], api_hash=config["api_hash"]) as app:
-        if config["chats"]:
-            await send_messages(app, config)
+
+    while True:
+        session_name = input("Enter the session name: ")
+
+        if Path(f"sessions/{session_name}.session").exists():
+            print(f"Using old {session_name}.session file")
         else:
-            print("Please fill your chats variable at config.json!")
+            print("Creating new session...")
+        
+        async with Client(session_name, workdir="sessions", api_id=config["api_id"], api_hash=config["api_hash"]) as app:
+            if config["chats"]:
+                await send_messages(app, config)
+            else:
+                print("Please fill your chats variable at config.json!")
+
+        print(f"Finished working with {session_name}.session")
 
 # Run the bot
 if __name__ == "__main__":
