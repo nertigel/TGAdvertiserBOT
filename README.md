@@ -13,7 +13,13 @@ You can run this bot on your own, install the required lib by running this comma
 pip install pyrogram
 ```
 
+# Configuration (config.json)
 
-In the `config.json` file you will find api_id, api_hash, message_text and chats variables, get your [API credentials from Telegram's official website](https://my.telegram.org/auth).
+In the `config.json` file you will find `api_id` and `api_hash` variables, get your [API credentials from Telegram's official website](https://my.telegram.org/auth).
+
+You can add an image that would be sent with the `message_text` as caption, for example `image_name.png`:
+```json
+"message_image": "image_name.png",
+```
 
 Now you can simply run the bot by running `main.py`
