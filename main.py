@@ -26,6 +26,19 @@ def create_dir_if_not_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+def list_sessions():
+    session_files = Path("sessions").glob("*.session")
+    sessions = [session_file.stem for session_file in session_files]
+
+    if not sessions:
+        print("No sessions found in the 'sessions' folder")
+    else:
+        print("Available sessions:")
+        for index, session_name in enumerate(sessions, start=0):
+            print(f"[{index}] {session_name}")
+    
+    return sessions
+
 async def send_messages(client, config):
     chats = config["chats"]
     message_text = config["message_text"]
@@ -60,11 +73,20 @@ async def main():
     create_dir_if_not_exists("sessions")
     config = load_json_cfg()
 
-    while True:
-        session_name = input("Enter the session name: ")
+    sessions = list_sessions()
+    if sessions:
+        session_choice = input("Enter the session name or select by number: ")
+        
+        if session_choice.isdigit():
+            session_name = sessions[int(session_choice)]
+        else:
+            session_name = session_choice
+    else:
+        session_name = input("No sessions available. Enter a new session name: ")
 
+    while True:
         if Path(f"sessions/{session_name}.session").exists():
-            print(f"Using old {session_name}.session file")
+            print(f"Using already created {session_name}.session")
         else:
             print("Creating new session...")
         
