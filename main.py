@@ -119,10 +119,12 @@ async def send_messages(client, config, chats):
                 if message_count >= message_limit:
                     break
             except FloodWait as e:
+                print(f"You have been flooded, waiting for {e.value}s")
                 await asyncio.sleep(e.value)
             except Exception as e:
                 print(f"Failed to send message to {chat}: {e}")
 
+        print(f"Finished sending {message_count} messages at {chat}, waiting {config['message_interval']}s")
         await asyncio.sleep(config["message_interval"])
 
 async def main():
@@ -130,21 +132,24 @@ async def main():
         create_default_config()
     
     create_dir_if_not_exists("sessions")
+
     config = load_json_cfg()
-
-    sessions = list_sessions()
-    if sessions:
-        session_choice = input("Enter the session name or select by number: \n")
-        
-        if session_choice.isdigit():
-            session_name = sessions[int(session_choice)]
-        else:
-            session_name = session_choice
-    else:
-        session_name = input("No sessions available. Enter a new session name: \n")
-
     chats = config["chats"]
     while True:
+        sessions = list_sessions()
+        if sessions:
+            session_choice = input("Enter the session name or select by number: \n")
+            
+            if session_choice.isdigit():
+                try:
+                    session_name = sessions[int(session_choice)]
+                except IndexError:
+                    session_name = input("Could not index session. Enter a new session name: \n")
+            else:
+                session_name = session_choice
+        else:
+            session_name = input("No sessions available. Enter a new session name: \n")
+
         if Path(f"sessions/{session_name}.session").exists():
             print(f"Using already created {session_name}.session")
         else:
@@ -164,4 +169,7 @@ async def main():
 
 # Run the bot
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, EOFError): 
+        print("File closed.")
